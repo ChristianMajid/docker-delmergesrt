@@ -10,12 +10,13 @@ sendToWebhook() {
 # MKVMERGE COMMANDS -------------------------------------------------------------------
 merge() {
     output=$1
-    input=$2
-    import=$3
-    ext=$4
-    type=$5
-    lang=$6
-    mkvmerge -o output.mkv --no-subtitles input.mkv
+    outputT=$2
+    input=$3
+    import=$4
+    ext=$5
+    type=$6
+    lang=$7
+
     case $ext in
                 srt|ass)
                     if [ "$type" == "sdh" ] || [ "$type" == "hi" ] || [ "$type" == "cc" ]; then
@@ -23,7 +24,8 @@ merge() {
                     elif [ "$type" == "forced" ]; then
                         mkvmerge -o "$output" "$input" --language 0:$lang --track-name 0:$type --forced-display-flag 0:true "$import"
                     else
-                        mkvmerge -o "$output" "$input" --language 0:$lang --track-name 0:$lang "$import"
+                        mkvmerge -o "$outputT" --no-subtitles "$input"
+                        mkvmerge -o "$output" "$outputT" --language 0:$lang --track-name 0:"Track 1" "$import"
                     fi
                     return 
                     ;;
@@ -114,19 +116,10 @@ process() {
         return
     fi
     echo -e "\e[1;32mSTARTING MERGE\e[m"
-    MERGE_FILE=$FILE_NAME'.merge'    
-    # CURR_SUB_COUNT="$(mkvmerge --identify "$VIDEO_FILE" | grep -c 'subtitle')" # Count the number of subs in the pre processed file
-    merge "$MERGE_FILE" "$VIDEO_FILE" "$IMPORT_FILE" "$EXT" "$TYPE" "$LANG"
-    # When doing large batches sometimes the merge does not seem to work correctly.
-    # this is used to keep running the merge until the file has detected a new subtitle.
-    NEW_SUB_COUNT="$(mkvmerge --identify "$MERGE_FILE" | grep -c 'subtitle')" # Count the number of subs in the post processed file
-    while [ "$NEW_SUB_COUNT" -ne 1 ] 
-    do
-        echo -e "\e[0;31mSubtitle is missing from merge file.  Rerunning merge\e[m"
-        rm "$MERGE_FILE"
-        merge "$MERGE_FILE" "$VIDEO_FILE" "$IMPORT_FILE" "$EXT" "$TYPE" "$LANG"
-        NEXT_SUB_COUNT="$(mkvmerge --identify "$MERGE_FILE" | grep -c 'subtitle')"
-    done
+    MERGE_FILE=$FILE_NAME'.merge'
+    MERGE_FILET=$FILE_NAME'.mergeT'      
+    merge "$MERGE_FILE" "$MERGE_FILET" "$VIDEO_FILE" "$IMPORT_FILE" "$EXT" "$TYPE" "$LANG"
+
     RESULT=$?
     # CLEAN UP  --------------------------------------------------------------------------
     if [ "$RESULT" -eq "0" ] || [ "$RESULT" -eq "1" ]; then
@@ -139,11 +132,13 @@ process() {
         fi
         echo "Delete $VIDEO_FILE"
         rm "$VIDEO_FILE"
+        rm "$MERGE_FILET"
         echo "Rename $MERGE_FILE to $FILE_NAME$FILE_EXT"
         mv "$MERGE_FILE" "$FILE_NAME$FILE_EXT"
         echo "---------------------------- END PROCESS ---------------------------"
     else
         echo -e "\e[0;31mMERGE FAILED\e[m"
+        rm "$MERGE_FILET"
     fi
 
     sendToWebhook
