@@ -1,11 +1,11 @@
 # docker-mergesrt
 Fork of townsste/mergesrt. Docker container for monitoring subtitle files and merging them into video without old subtitle tracks 
 
+   Published on [Docker Hub ChristianMajid](https://hub.docker.com/r/ChristianMajid/mergesrt)
+
    Published on [Docker Hub townsste](https://hub.docker.com/r/townsste/mergesrt)
 
    Published on [Docker Hub zzeneg](https://hub.docker.com/r/zzeneg/mergesrt)
-
-   Published on [Docker Hub zzeneg](https://hub.docker.com/r/ChristianMajid/mergesrt)
 
 ## Features
 - search for existing `*.lang.srt` files
