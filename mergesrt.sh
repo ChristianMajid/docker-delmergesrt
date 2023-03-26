@@ -16,7 +16,11 @@ merge() {
     ext=$5
     type=$6
     lang=$7
-
+    count=$8
+    if [ "$count" -ne "0" ]; then 
+        mkvmerge -o "$outputT" --no-subtitles "$input"
+        input=$outputT
+    fi
     case $ext in
                 srt|ass)
                     if [ "$type" == "sdh" ] || [ "$type" == "hi" ] || [ "$type" == "cc" ]; then
@@ -24,8 +28,7 @@ merge() {
                     elif [ "$type" == "forced" ]; then
                         mkvmerge -o "$output" "$input" --language 0:$lang --track-name 0:$type --forced-display-flag 0:true "$import"
                     else
-                        mkvmerge -o "$outputT" --no-subtitles "$input"
-                        mkvmerge -o "$output" "$outputT" --language 0:$lang --track-name 0:"Track 1" "$import"
+                        mkvmerge -o "$output" "$input" --language 0:$lang --track-name 0:"Track 1" "$import"
                     fi
                     return 
                     ;;
@@ -117,9 +120,9 @@ process() {
     fi
     echo -e "\e[1;32mSTARTING MERGE\e[m"
     MERGE_FILE=$FILE_NAME'.merge'
-    MERGE_FILET=$FILE_NAME'.mergeT'      
-    merge "$MERGE_FILE" "$MERGE_FILET" "$VIDEO_FILE" "$IMPORT_FILE" "$EXT" "$TYPE" "$LANG"
-
+    MERGE_FILET=$FILE_NAME'.mergeT'  
+    CURR_SUB_COUNT="$(mkvmerge --identify "$VIDEO_FILE" | grep -c 'subtitle')" # Count the number of subs in the pre processed file
+    merge "$MERGE_FILE" "$MERGE_FILET" "$VIDEO_FILE" "$IMPORT_FILE" "$EXT" "$TYPE" "$LANG" "$CURR_SUB_COUNT"
     RESULT=$?
     # CLEAN UP  --------------------------------------------------------------------------
     if [ "$RESULT" -eq "0" ] || [ "$RESULT" -eq "1" ]; then
