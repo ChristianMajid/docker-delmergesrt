@@ -1,19 +1,23 @@
 # docker-mergesrt
-Fork of zzeneg/mergesrt. Docker container for monitoring subtitle files and merging them into video
+Fork of townsste/mergesrt. Docker container for monitoring subtitle files and merging them into video without old subtitle tracks 
 
    Published on [Docker Hub townsste](https://hub.docker.com/r/townsste/mergesrt)
 
    Published on [Docker Hub zzeneg](https://hub.docker.com/r/zzeneg/mergesrt)
 
+   Published on [Docker Hub zzeneg](https://hub.docker.com/r/ChristianMajid/mergesrt)
+
 ## Features
 - search for existing `*.lang.srt` files
 - monitor for new `*.lang.srt` files
 - merge subtitles to `mkv`/`mp4` files
-- adds on to existing subtitles. thus allows for multiple subtitles to be added 
+- removes original subtitles 
 - remove merged subtitle files
 - send notification to a webhook after a merge (success/fail)
+- There can be issues with big batches 
 
 ## Added functionality
+- Removes old subtitles, adds new one as only subtitle track
 - Use 2 language code.
 - Supports tags with sdh, forced, hi, & cc.
 - Supports merging .idx with .sub file.
